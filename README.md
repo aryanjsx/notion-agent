@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/build-with-gemini.png" alt="Build with Gemini" width="100%" />
+</div>
+
 # Autonomous Notion AI Agent on Google Cloud Platform (GCP)
 
 > An enterprise-grade, serverless AI agent built on GCP that translates natural-language user requests into complex Notion actions, analyzes attached documents with verifiable citations, enforces human-in-the-loop safety approvals, and automatically sends multi-channel completion notifications.
