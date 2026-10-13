@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notion AI Agent (GCP)</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-area">
+        <span class="logo-icon">⚡</span>
+        <h1>Notion AI Agent</h1>
+        <span class="badge">GCP Serverless</span>
+      </div>
+      <p class="subtitle">Autonomous AI Agent powered by Gemini on Google Cloud Platform</p>
+    </header>
+
+    <main class="grid">
+      <!-- Input Panel -->
+      <section class="card form-panel">
+        <h2>Submit Request</h2>
+        <form id="task-form">
+          <div class="form-group">
+            <label for="prompt">What would you like the agent to do?</label>
+            <textarea
+              id="prompt"
+              rows="4"
+              placeholder="e.g. 'Create a page called Q4 Launch Plan with a task database (Name, Owner, Due date, Status) and 5 starter tasks' or 'Summarize the attached PDF and append key takeaways to my Research page'"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="attachment">Attach Document (PDF, DOCX, TXT, CSV)</label>
+            <input type="file" id="attachment" />
+            <div id="upload-status" class="file-status"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mode">Execution Mode</label>
+              <select id="mode">
+                <option value="auto" selected>Auto (Autonomous execution)</option>
+                <option value="confirm_before_write">Confirm Before Write (Human-in-the-loop)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Notify On Completion</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="notify-notion" checked /> In-Notion Comment</label>
+                <label><input type="checkbox" id="notify-slack" /> Slack</label>
+                <label><input type="checkbox" id="notify-email" /> Email</label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn btn-primary">
+            🚀 Run Agent
+          </button>
+        </form>
+      </section>
+
+      <!-- Task Status & Execution Panel -->
+      <section class="card status-panel">
+        <div class="panel-header">
+          <h2>Agent Execution Status</h2>
+          <span id="task-status-pill" class="status-pill status-idle">Idle</span>
+        </div>
+
+        <div id="task-summary-box" class="summary-box" style="display: none;">
+          <h3>Summary</h3>
+          <p id="task-summary-text"></p>
+          <div id="created-links-container">
+            <h4>Created / Modified Notion Artifacts:</h4>
+            <ul id="created-links-list"></ul>
+          </div>
+        </div>
+
+        <!-- Approval Box -->
+        <div id="confirmation-box" class="confirmation-box" style="display: none;">
+          <h3>⚠️ Approval Required</h3>
+          <p id="confirmation-reason"></p>
+          <div class="btn-group">
+            <button id="approve-btn" class="btn btn-success">Approve & Continue</button>
+            <button id="reject-btn" class="btn btn-danger">Reject & Cancel</button>
+          </div>
+        </div>
+
+        <!-- Step List Log -->
+        <div class="steps-section">
+          <h3>Execution Plan & Log</h3>
+          <div id="steps-container" class="steps-container">
+            <p class="placeholder-text">Submit a prompt to see the agent plan and execute steps live.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

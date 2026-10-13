@@ -1,0 +1,83 @@
+steps:
+  # 1. Build API container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.api'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-api:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-api:latest'
+      - '.'
+
+  # 2. Build Worker container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.worker'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-worker:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-worker:latest'
+      - '.'
+
+  # 3. Push API image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-api:latest'
+
+  # 4. Push Worker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-worker:latest'
+
+  # 5. Deploy API to Cloud Run (min-instances=0 for zero idle cost)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'notion-agent-api'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-api:latest'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--min-instances=0'
+      - '--max-instances=10'
+      - '--memory=1Gi'
+      - '--cpu=1'
+      - '--timeout=60s'
+      - '--service-account=notion-agent-sa@${PROJECT_ID}.iam.gserviceaccount.com'
+
+  # 6. Deploy Worker to Cloud Run (min-instances=0, longer timeout)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'notion-agent-worker'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-worker:latest'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--no-allow-unauthenticated'
+      - '--min-instances=0'
+      - '--max-instances=5'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--timeout=300s'
+      - '--service-account=notion-agent-sa@${PROJECT_ID}.iam.gserviceaccount.com'
+
+substitutions:
+  _REGION: 'us-central1'
+  _REPO: 'notion-agent-repo'
+
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-api:latest'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/notion-agent-worker:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

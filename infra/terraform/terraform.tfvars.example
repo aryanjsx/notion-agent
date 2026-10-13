@@ -1,0 +1,7 @@
+project_id            = "my-gcp-project-id"
+region                = "us-central1"
+environment           = "prod"
+notion_token          = "secret_abcdef1234567890..."
+slack_bot_token       = "xoxb-your-slack-bot-token"
+sendgrid_api_key      = "SG.your-sendgrid-api-key"
+notion_webhook_secret = "your_webhook_verification_secret"
